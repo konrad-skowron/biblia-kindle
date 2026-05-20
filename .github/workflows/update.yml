@@ -1,0 +1,48 @@
+name: Update readings
+
+on:
+  # Co 30 minut. Cron w GitHub Actions używa UTC.
+  # Skrypt sam decyduje (na podstawie czasu Europe/Warsaw),
+  # czy pokazywać czytania na dziś, czy już na jutro (po 18:00).
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch: {}
+  push:
+    branches: [main]
+    paths:
+      - "generate.py"
+      - ".github/workflows/update.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-readings
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Generate index.html
+        run: python generate.py
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "chore: update readings ($(TZ=Europe/Warsaw date '+%Y-%m-%d %H:%M %Z'))"
+            git push
+          fi
