@@ -199,31 +199,30 @@ small { font-size: 0.85em; }
 
 
 def render_html(data: dict, generated_at: datetime, target: date) -> str:
+    """Renderuje stronę z samą Ewangelią (data + autor + tekst)."""
     parts: list[str] = []
-    for i, p in enumerate(data["paragraphs"]):
-        if i == data["gospel_idx"]:
-            author = data["gospel_author"] or ""
-            ref = data["gospel_ref"] or ""
-            heading = (
-                f'<h2 class="gospel-heading">Ewangelia wg św. {htmllib.escape(author)}</h2>'
-                if author
-                else '<h2 class="gospel-heading">Ewangelia</h2>'
-            )
-            parts.append(heading)
-            if ref:
-                parts.append(f'<p class="gospel-ref">({htmllib.escape(ref)})</p>')
-            # Usuń z paragrafu sam początek "(Skrót ...)<br>" — nagłówek już go zawiera
-            stripped = re.sub(
-                r"^\s*\((Mt|Mk|Łk|J)\s+[^)]+\)\s*(<br\s*/?>)?\s*",
-                "",
-                p,
-                count=1,
-            )
-            parts.append(f"<p>{stripped}</p>")
-        else:
-            parts.append(f"<p>{p}</p>")
+    gospel_idx = data["gospel_idx"]
+    if gospel_idx is not None:
+        author = data["gospel_author"] or ""
+        ref = data["gospel_ref"] or ""
+        heading = (
+            f'<h2 class="gospel-heading">Ewangelia wg św. {htmllib.escape(author)}</h2>'
+            if author
+            else '<h2 class="gospel-heading">Ewangelia</h2>'
+        )
+        parts.append(heading)
+        if ref:
+            parts.append(f'<p class="gospel-ref">({htmllib.escape(ref)})</p>')
+        # Usuń z paragrafu sam początek "(Skrót ...)<br>" — nagłówek już go zawiera
+        gospel_text = re.sub(
+            r"^\s*\((Mt|Mk|Łk|J)\s+[^)]+\)\s*(<br\s*/?>)?\s*",
+            "",
+            data["paragraphs"][gospel_idx],
+            count=1,
+        )
+        parts.append(f"<p>{gospel_text}</p>")
 
-    body = "\n".join(parts) if parts else "<p><em>Brak czytania na ten dzień.</em></p>"
+    body = "\n".join(parts) if parts else "<p><em>Brak Ewangelii na ten dzień.</em></p>"
 
     # Tytuł strony zawiera datę, żeby Kindle pokazywał ją w pasku tytułu
     title = f"Czytanie — {data['date_str']}" if data["date_str"] else "Czytanie na dziś"
@@ -284,8 +283,8 @@ def main(argv: list[str]) -> int:
         return 0
 
     data = parse(html_text)
-    if not data["paragraphs"]:
-        print("OSTRZEŻENIE: nie udało się wyciągnąć żadnych paragrafów; pomijam zapis.", file=sys.stderr)
+    if data["gospel_idx"] is None:
+        print("OSTRZEŻENIE: nie udało się znaleźć Ewangelii w pobranej stronie; pomijam zapis.", file=sys.stderr)
         return 0
 
     output = render_html(data, now, target)
