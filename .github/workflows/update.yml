@@ -1,11 +1,11 @@
 name: Update readings
 
 on:
-  # Co 30 minut. Cron w GitHub Actions używa UTC.
-  # Skrypt sam decyduje (na podstawie czasu Europe/Warsaw),
-  # czy pokazywać czytania na dziś, czy już na jutro (po 18:00).
+  # Raz dziennie o 17:00 UTC (=18:00 Europe/Warsaw zimą, 19:00 latem).
+  # Skrypt po godz. 18:00 czasu warszawskiego automatycznie generuje
+  # czytania na następny dzień.
   schedule:
-    - cron: "*/30 * * * *"
+    - cron: "0 17 * * *"
   workflow_dispatch: {}
   push:
     branches: [main]
