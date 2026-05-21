@@ -287,6 +287,16 @@ def main(argv: list[str]) -> int:
 
     output = render_html(data, now, target)
     out_path = Path(__file__).parent / "index.html"
+
+    # Pomiń zapis, jeśli zmienił się tylko stempel czasowy (a treść jest taka sama).
+    # Dzięki temu github-actions nie commituje pustych zmian co 30 minut.
+    timestamp_re = re.compile(r"<p>Zaktualizowano:[^<]*</p>\s*", re.IGNORECASE)
+    if out_path.exists():
+        existing = out_path.read_text(encoding="utf-8")
+        if timestamp_re.sub("", existing) == timestamp_re.sub("", output):
+            print("Bez zmian (poza stemplem czasowym) — pomijam zapis.")
+            return 0
+
     out_path.write_text(output, encoding="utf-8")
     print(f"Zapisano: {out_path} ({len(output)} bajtów)")
     print(f"  Data: {data['date_str']} | {data['day']}")
