@@ -155,12 +155,12 @@ CSS = """\
 html, body { margin: 0; padding: 0; background: #ffffff; color: #000000; }
 body {
   font-family: "Caecilia", "Bookerly", Georgia, "Times New Roman", serif;
-  font-size: 28px;
+  font-size: 34px;
   line-height: 1.55;
   padding: 0.4em 0.5em 1em 0.5em;
   text-rendering: optimizeLegibility;
 }
-header { margin-bottom: 0.8em; padding-bottom: 0.4em; }
+header { margin-bottom: 0.6em; padding-bottom: 0; }
 .date { margin: 0 0 0.2em 0; font-size: 0.95em; }
 h1 { margin: 0.1em 0 0.2em 0; font-size: 1.7em; font-weight: bold; }
 .subtitle { margin: 0; font-style: italic; font-size: 1em; }
@@ -168,7 +168,7 @@ h1 { margin: 0.1em 0 0.2em 0; font-size: 1.7em; font-weight: bold; }
 main p { margin: 0.6em 0 1em 0; text-align: justify; hyphens: auto; }
 
 h2.gospel-heading {
-  margin: 0.8em 0 0.4em 0;
+  margin: 0.6em 0 0.4em 0;
   padding-top: 0.6em;
   border-top: 1px solid #888;
   font-size: 1.25em;
