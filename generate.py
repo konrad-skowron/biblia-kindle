@@ -155,7 +155,7 @@ CSS = """\
 html, body { margin: 0; padding: 0; background: #ffffff; color: #000000; }
 body {
   font-family: "Caecilia", "Bookerly", Georgia, "Times New Roman", serif;
-  font-size: 28px;
+  font-size: 34px;
   line-height: 1.55;
   padding: 0.4em 0.5em 1em 0.5em;
   text-rendering: optimizeLegibility;
