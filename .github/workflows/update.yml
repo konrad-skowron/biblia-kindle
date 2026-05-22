@@ -1,11 +1,11 @@
 name: Update readings
 
 on:
-  # Raz dziennie o 17:00 UTC (=18:00 Europe/Warsaw zimą, 19:00 latem).
+  # Raz dziennie o 16:00 UTC (=18:00 Europe/Warsaw latem, 17:00 zimą).
   # Skrypt po godz. 18:00 czasu warszawskiego automatycznie generuje
   # czytania na następny dzień.
   schedule:
-    - cron: "0 17 * * *"
+    - cron: "0 16 * * *"
   workflow_dispatch: {}
   push:
     branches: [main]
