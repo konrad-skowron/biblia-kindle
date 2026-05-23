@@ -97,9 +97,13 @@ def _extract(text: str, pattern: str, group: int = 1) -> str:
 
 def parse(html_text: str) -> dict:
     """Wyciąga z HTML-a mateusz.pl: datę, dzień, podtytuł, paragrafy czytań, info o Ewangelii."""
-    date_str = _extract(html_text, r'<p\s+class="data">\s*(.+?)\s*</p>')
-    day = _extract(html_text, r"<h1>\s*(.+?)\s*</h1>")
-    subtitle = _extract(html_text, r'<p\s+class="subtitle">\s*(.+?)\s*</p>')
+    # Pomocniczo: usuń pozostałe tagi HTML (np. <text class="holiday">) z pól tekstowych.
+    def _plain(s: str) -> str:
+        return re.sub(r"<[^>]+>", "", s).strip()
+
+    date_str = _plain(_extract(html_text, r'<p\s+class="data">\s*(.+?)\s*</p>'))
+    day = _plain(_extract(html_text, r"<h1>\s*(.+?)\s*</h1>"))
+    subtitle = _plain(_extract(html_text, r'<p\s+class="subtitle">\s*(.+?)\s*</p>'))
 
     # Wyizoluj sekcję "Czytania"
     start = html_text.find('<a name="czytania">')
