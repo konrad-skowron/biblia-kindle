@@ -205,6 +205,25 @@ small { font-size: 0.85em; }
 
 def render_html(data: dict, generated_at: datetime, target: date) -> str:
     """Renderuje stronę z samą Ewangelią (data + autor + tekst)."""
+    # Zawsze wyliczamy dzień tygodnia z daty docelowej (mateusz.pl nie zawsze go podaje).
+    weekday = POLISH_WEEKDAYS[target.weekday()]
+
+    # Subtitle: łączymy to co mateusz.pl dał w <h1> i <p class="subtitle">,
+    # ale tylko jeśli <h1> nie jest po prostu nazwą dnia tygodnia (wtedy byłoby redundantne).
+    raw_day = data["day"]
+    raw_subtitle = data["subtitle"]
+    if raw_day in POLISH_WEEKDAYS:
+        subtitle = raw_subtitle
+    else:
+        # <h1> zawiera nazwę święta — użyjemy jej jako subtitle
+        subtitle = (
+            raw_day
+            if not raw_subtitle
+            else f"{raw_day}. {raw_subtitle}"
+            if raw_day != raw_subtitle
+            else raw_day
+        )
+
     parts: list[str] = []
     gospel_idx = data["gospel_idx"]
     if gospel_idx is not None:
@@ -247,8 +266,8 @@ def render_html(data: dict, generated_at: datetime, target: date) -> str:
 <body>
 <header>
 <p class="date">{htmllib.escape(data['date_str'])}</p>
-<h1>{htmllib.escape(data['day'])}</h1>
-<p class="subtitle">{htmllib.escape(data['subtitle'])}</p>
+<h1>{htmllib.escape(weekday)}</h1>
+<p class="subtitle">{htmllib.escape(subtitle)}</p>
 </header>
 <main>
 {body}
