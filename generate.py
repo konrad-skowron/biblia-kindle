@@ -208,21 +208,16 @@ def render_html(data: dict, generated_at: datetime, target: date) -> str:
     # Zawsze wyliczamy dzień tygodnia z daty docelowej (mateusz.pl nie zawsze go podaje).
     weekday = POLISH_WEEKDAYS[target.weekday()]
 
-    # Subtitle: łączymy to co mateusz.pl dał w <h1> i <p class="subtitle">,
-    # ale tylko jeśli <h1> nie jest po prostu nazwą dnia tygodnia (wtedy byłoby redundantne).
+    # Subtitle: bierzemy to co mateusz.pl dał w <p class="subtitle"> jeśli niepuste,
+    # w przeciwnym wypadku zawartość <h1> (czyli np. nazwę święta).
     raw_day = data["day"]
     raw_subtitle = data["subtitle"]
     if raw_day in POLISH_WEEKDAYS:
+        # Dzień tygodnia jest już w h1 (i tak go nadpisujemy obliczonym), bierzemy tylko opis.
         subtitle = raw_subtitle
     else:
-        # <h1> zawiera nazwę święta — użyjemy jej jako subtitle
-        subtitle = (
-            raw_day
-            if not raw_subtitle
-            else f"{raw_day}. {raw_subtitle}"
-            if raw_day != raw_subtitle
-            else raw_day
-        )
+        # Pusty <h1> albo zawiera nazwę święta. Preferujemy subtitle, fallback do h1.
+        subtitle = raw_subtitle or raw_day
 
     parts: list[str] = []
     gospel_idx = data["gospel_idx"]
