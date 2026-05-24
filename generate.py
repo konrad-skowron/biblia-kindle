@@ -99,7 +99,10 @@ def parse(html_text: str) -> dict:
     """Wyciąga z HTML-a mateusz.pl: datę, dzień, podtytuł, paragrafy czytań, info o Ewangelii."""
     # Pomocniczo: usuń pozostałe tagi HTML (np. <text class="holiday">) z pól tekstowych.
     def _plain(s: str) -> str:
-        return re.sub(r"<[^>]+>", "", s).strip()
+        s = re.sub(r"<[^>]+>", "", s)
+        # Strip wiodącą interpunkcję (np. ". ", "— ", ", "), która zostaje po tagach
+        s = re.sub(r"^[\s.\u2013\u2014,;:]+", "", s)
+        return s.strip()
 
     date_str = _plain(_extract(html_text, r'<p\s+class="data">\s*(.+?)\s*</p>'))
     day = _plain(_extract(html_text, r"<h1>\s*(.+?)\s*</h1>"))
@@ -166,7 +169,7 @@ body {
 }
 header { margin-bottom: 0.6em; padding-bottom: 0; }
 .date { margin: 0 0 0.2em 0; font-size: 0.95em; }
-h1 { margin: 0.1em 0 0.2em 0; font-size: 1.7em; font-weight: bold; }
+h1 { margin: 0.1em 0 0.2em 0; font-size: 1.3em; font-weight: bold; }
 .subtitle { margin: 0; font-style: italic; font-size: 1em; }
 
 main p { margin: 0.6em 0 1em 0; text-align: justify; hyphens: auto; }
@@ -213,7 +216,13 @@ def render_html(data: dict, generated_at: datetime, target: date) -> str:
         subtitle = raw_subtitle
     else:
         # <h1> zawiera nazwę święta — użyjemy jej jako subtitle
-        subtitle = raw_day if not raw_subtitle else f"{raw_day}. {raw_subtitle}" if raw_day != raw_subtitle else raw_day
+        subtitle = (
+            raw_day
+            if not raw_subtitle
+            else f"{raw_day}. {raw_subtitle}"
+            if raw_day != raw_subtitle
+            else raw_day
+        )
 
     parts: list[str] = []
     gospel_idx = data["gospel_idx"]
